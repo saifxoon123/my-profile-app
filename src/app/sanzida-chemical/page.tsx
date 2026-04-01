@@ -27,7 +27,7 @@ export default function SanzidaChemical() {
           </h1>
           <p className="text-gray-700 mb-6">
             Sanzida Chemical Works is committed to delivering premium quality 
-            chemical products with international standards and reliability. Our product is TATA-COIL.
+            chemical products with international standards and reliability.
           </p>
         </>
       ) : (
