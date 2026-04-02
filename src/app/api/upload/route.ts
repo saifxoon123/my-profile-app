@@ -17,9 +17,6 @@ export async function POST(req: Request) {
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    // 🔥 যদি userId না থাকে → email দিয়ে fallback
-    const userId = decoded.userId;
-
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
@@ -39,27 +36,25 @@ export async function POST(req: Request) {
         .end(buffer);
     });
 
-    let updatedUser = null;
+    let user = null;
 
-    // 🔥 TRY 1: userId দিয়ে
-    if (userId) {
-      updatedUser = await User.findByIdAndUpdate(
-        userId,
+    if (decoded.userId) {
+      user = await User.findByIdAndUpdate(
+        decoded.userId,
         { photo: result.secure_url },
         { new: true }
       );
     }
 
-    // 🔥 TRY 2: email দিয়ে (fallback)
-    if (!updatedUser && decoded.email) {
-      updatedUser = await User.findOneAndUpdate(
+    if (!user && decoded.email) {
+      user = await User.findOneAndUpdate(
         { email: decoded.email },
         { photo: result.secure_url },
         { new: true }
       );
     }
 
-    if (!updatedUser) {
+    if (!user) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 

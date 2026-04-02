@@ -16,15 +16,30 @@ export async function GET() {
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    const user = await User.findById(decoded.userId);
+    let user = null;
+
+    // 🔥 TRY 1: userId
+    if (decoded.userId) {
+      user = await User.findById(decoded.userId);
+    }
+
+    // 🔥 TRY 2: email fallback
+    if (!user && decoded.email) {
+      user = await User.findOne({ email: decoded.email });
+    }
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
 
     return NextResponse.json({
-      name: user?.name || "",
-      email: user?.email || "",
-      photo: user?.photo || "",
+      name: user.name,
+      email: user.email,
+      photo: user.photo || null,
     });
 
   } catch (error) {
+    console.log("PROFILE ERROR:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
