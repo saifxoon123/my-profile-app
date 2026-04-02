@@ -18,18 +18,13 @@ export async function GET() {
 
     const user = await User.findById(decoded.userId);
 
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
     return NextResponse.json({
-      name: user.name || "",
-      email: user.email || "",
-      photo: user.photo || "",
+      name: user?.name || "",
+      email: user?.email || "",
+      photo: user?.photo || "",
     });
 
   } catch (error) {
-    console.log("PROFILE ERROR:", error);
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

@@ -1,5 +1,47 @@
-const token = jwt.sign(
-  { email: user.email }, // 🔥 MUST
-  process.env.JWT_SECRET!,
-  { expiresIn: "7d" }
-);
+import { NextResponse } from "next/server";
+import connectDB from "@/lib/mongodb";
+import User from "@/models/User";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+export async function POST(req: Request) {
+  try {
+    await connectDB();
+
+    const { email, password } = await req.json();
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+
+    if (!isMatch) {
+      return NextResponse.json({ error: "Wrong password" }, { status: 400 });
+    }
+
+    // 🔥 FINAL TOKEN (IMPORTANT)
+    const token = jwt.sign(
+      {
+        userId: user._id.toString(),
+        email: user.email,
+      },
+      process.env.JWT_SECRET!,
+      { expiresIn: "7d" }
+    );
+
+    const response = NextResponse.json({ message: "Login success" });
+
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      path: "/",
+    });
+
+    return response;
+
+  } catch (error) {
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
+  }
+}

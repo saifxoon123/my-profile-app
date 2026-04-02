@@ -20,6 +20,10 @@ export async function POST(req: Request) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
 
+    if (!file) {
+      return NextResponse.json({ error: "No file" }, { status: 400 });
+    }
+
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
@@ -32,12 +36,10 @@ export async function POST(req: Request) {
         .end(buffer);
     });
 
-    // 🔥 FIX: email দিয়ে update (100% works)
-    await User.findOneAndUpdate(
-      { email: decoded.email },
-      { photo: result.secure_url },
-      { new: true }
-    );
+    // 🔥 FINAL FIX
+    await User.findByIdAndUpdate(decoded.userId, {
+      photo: result.secure_url,
+    });
 
     return NextResponse.json({
       message: "Uploaded",
