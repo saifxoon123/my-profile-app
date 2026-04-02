@@ -6,26 +6,16 @@ import { cookies } from "next/headers";
 
 export async function GET() {
   try {
-    // 🟢 DB connect
     await connectDB();
 
-    // 🔐 cookies (FIXED)
-    const cookieStore = await cookies();
-    const token = cookieStore.get("token")?.value;
+    const token = cookies().get("token")?.value;
 
     if (!token) {
       return NextResponse.json({ error: "Not logged in" }, { status: 401 });
     }
 
-    // 🔐 decode safe
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET!);
-    } catch (err) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
+    const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    // 🧠 user find
     const user = await User.findById(decoded.userId);
 
     if (!user) {
@@ -35,11 +25,11 @@ export async function GET() {
     return NextResponse.json({
       name: user.name || "",
       email: user.email || "",
-      photo: user.photo || null,
+      photo: user.photo || "",
     });
 
   } catch (error) {
     console.log("PROFILE ERROR:", error);
-    return NextResponse.json({ error: "Server crash" }, { status: 500 });
+    return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }
