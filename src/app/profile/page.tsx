@@ -1,3 +1,4 @@
+return <h1>TEST PAGE</h1>;
 "use client";
 
 import { useEffect, useState } from "react";
