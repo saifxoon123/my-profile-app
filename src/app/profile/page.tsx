@@ -8,7 +8,8 @@ export default function Profile() {
   useEffect(() => {
     fetch("/api/profile")
       .then(res => res.json())
-      .then(res => setData(res));
+      .then(res => setData(res))
+      .catch(() => setData(null));
   }, []);
 
   const upload = async (e: any) => {
@@ -23,24 +24,44 @@ export default function Profile() {
       body: formData,
     });
 
+    alert("Uploaded");
     window.location.reload();
   };
 
-  if (!data) return <h2>Loading...</h2>;
-
   return (
-    <div>
-      <h1>PROFILE PAGE</h1>
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      backgroundColor: "#f0f0f0"
+    }}>
+      <div style={{
+        backgroundColor: "white",
+        padding: "20px",
+        borderRadius: "10px",
+        width: "300px",
+        textAlign: "center",
+        boxShadow: "0 0 10px rgba(0,0,0,0.1)"
+      }}>
+        <h2>Profile Page</h2>
 
-      <img
-        src={data.photo || "https://via.placeholder.com/150"}
-        width="150"
-      />
+        <img
+          src={data?.photo || "https://via.placeholder.com/120"}
+          style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginBottom: "10px"
+          }}
+        />
 
-      <p>Name: {data.name}</p>
-      <p>Email: {data.email}</p>
+        <p>Name: {data?.name || "No Name"}</p>
+        <p>Email: {data?.email || "No Email"}</p>
 
-      <input type="file" onChange={upload} />
+        <input type="file" onChange={upload} />
+      </div>
     </div>
   );
 }
