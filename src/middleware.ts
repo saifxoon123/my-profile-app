@@ -1,19 +1,26 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
-export function middleware(req: NextRequest) {
+export function middleware(request: NextRequest) {
+  const token = request.cookies.get("token")?.value;
 
-  const token = req.cookies.get("token")?.value;
+  const { pathname } = request.nextUrl;
 
-  if (req.nextUrl.pathname.startsWith("/profile")) {
+  // 🟢 public routes
+  if (
+    pathname.startsWith("/login") ||
+    pathname.startsWith("/register") ||
+    pathname.startsWith("/")
+  ) {
+    return NextResponse.next();
+  }
+
+  // 🔒 protected route (profile)
+  if (pathname.startsWith("/profile")) {
     if (!token) {
-      return NextResponse.redirect(new URL("/login", req.url));
+      return NextResponse.redirect(new URL("/login", request.url));
     }
   }
 
   return NextResponse.next();
 }
-
-export const config = {
-  matcher: ["/profile/:path*"],
-};
