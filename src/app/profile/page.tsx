@@ -2,18 +2,17 @@
 
 import { useEffect, useState } from "react";
 
-export default function ProfilePage() {
-  const [user, setUser] = useState<any>(null);
+export default function Profile() {
+  const [data, setData] = useState<any>(null);
 
   useEffect(() => {
     fetch("/api/profile")
       .then(res => res.json())
-      .then(data => setUser(data));
+      .then(res => setData(res));
   }, []);
 
-  const handleUpload = async (e: any) => {
+  const upload = async (e: any) => {
     const file = e.target.files[0];
-
     if (!file) return;
 
     const formData = new FormData();
@@ -24,51 +23,24 @@ export default function ProfilePage() {
       body: formData,
     });
 
-    alert("Upload done");
     window.location.reload();
   };
 
-  if (!user) return <p style={{ textAlign: "center" }}>Loading...</p>;
+  if (!data) return <h2>Loading...</h2>;
 
   return (
-    <div style={{
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      height: "100vh",
-      background: "#f5f5f5"
-    }}>
-      <div style={{
-        background: "#fff",
-        padding: "30px",
-        borderRadius: "10px",
-        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-        textAlign: "center",
-        width: "300px"
-      }}>
-        <h2>Profile</h2>
+    <div>
+      <h1>PROFILE PAGE</h1>
 
-        <img
-          src={user.photo || "https://via.placeholder.com/120"}
-          alt="profile"
-          style={{
-            width: "120px",
-            height: "120px",
-            borderRadius: "50%",
-            objectFit: "cover",
-            marginBottom: "10px"
-          }}
-        />
+      <img
+        src={data.photo || "https://via.placeholder.com/150"}
+        width="150"
+      />
 
-        <p><strong>Name:</strong> {user.name}</p>
-        <p><strong>Email:</strong> {user.email}</p>
+      <p>Name: {data.name}</p>
+      <p>Email: {data.email}</p>
 
-        <input
-          type="file"
-          onChange={handleUpload}
-          style={{ marginTop: "10px" }}
-        />
-      </div>
+      <input type="file" onChange={upload} />
     </div>
   );
 }
