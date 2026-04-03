@@ -5,12 +5,14 @@ import { useEffect, useState } from "react";
 export default function Profile() {
   const [data, setData] = useState<any>(null);
 
+  // 🔥 user data load
   useEffect(() => {
     fetch("/api/profile")
       .then(res => res.json())
       .then(res => setData(res));
   }, []);
 
+  // 🔥 upload function
   const upload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -27,22 +29,32 @@ export default function Profile() {
     window.location.reload();
   };
 
+  // 🔥 logout function
+  const logout = async () => {
+    await fetch("/api/logout");
+    window.location.href = "/login";
+  };
+
   return (
-    <div style={{
-      minHeight: "100vh",
-      background: "linear-gradient(135deg, #4facfe, #00f2fe)",
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center"
-    }}>
-      <div style={{
-        background: "#fff",
-        padding: "30px",
-        borderRadius: "15px",
-        width: "320px",
-        textAlign: "center",
-        boxShadow: "0 10px 25px rgba(0,0,0,0.2)"
-      }}>
+    <div
+      style={{
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #4facfe, #00f2fe)",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          background: "#fff",
+          padding: "30px",
+          borderRadius: "15px",
+          width: "320px",
+          textAlign: "center",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+        }}
+      >
         <h2 style={{ marginBottom: "15px" }}>👤 Profile</h2>
 
         <img
@@ -54,7 +66,7 @@ export default function Profile() {
             borderRadius: "50%",
             objectFit: "cover",
             marginBottom: "15px",
-            border: "3px solid #4facfe"
+            border: "3px solid #4facfe",
           }}
         />
 
@@ -66,6 +78,23 @@ export default function Profile() {
           onChange={upload}
           style={{ marginTop: "15px" }}
         />
+
+        {/* 🔴 Logout Button */}
+        <button
+          onClick={logout}
+          style={{
+            marginTop: "15px",
+            padding: "10px",
+            width: "100%",
+            background: "red",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+            cursor: "pointer",
+          }}
+        >
+          Logout
+        </button>
       </div>
     </div>
   );
