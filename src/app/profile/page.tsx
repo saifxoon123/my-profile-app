@@ -4,26 +4,13 @@ import { useEffect, useState } from "react";
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  // 🟢 Load profile
   useEffect(() => {
-    const getProfile = async () => {
-      try {
-        const res = await fetch("/api/profile");
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.log(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getProfile();
+    fetch("/api/profile")
+      .then(res => res.json())
+      .then(data => setUser(data));
   }, []);
 
-  // 🟢 Upload photo
   const handleUpload = async (e: any) => {
     const file = e.target.files[0];
 
@@ -37,38 +24,50 @@ export default function ProfilePage() {
       body: formData,
     });
 
-    // 🔥 reload after upload
+    alert("Upload done");
     window.location.reload();
   };
 
-  if (loading) return <p className="text-center mt-10">Loading...</p>;
+  if (!user) return <p style={{ textAlign: "center" }}>Loading...</p>;
 
   return (
-    <div className="flex justify-center items-center min-h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-xl shadow-lg w-80 text-center">
+    <div style={{
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+      height: "100vh",
+      background: "#f5f5f5"
+    }}>
+      <div style={{
+        background: "#fff",
+        padding: "30px",
+        borderRadius: "10px",
+        boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+        textAlign: "center",
+        width: "300px"
+      }}>
+        <h2>Profile</h2>
 
-        <h1 className="text-2xl font-bold mb-4">Profile</h1>
+        <img
+          src={user.photo || "https://via.placeholder.com/120"}
+          alt="profile"
+          style={{
+            width: "120px",
+            height: "120px",
+            borderRadius: "50%",
+            objectFit: "cover",
+            marginBottom: "10px"
+          }}
+        />
 
-        {/* 🟢 Profile Image */}
-        <div className="flex justify-center mb-4">
-          <img
-            src={user?.photo || "https://via.placeholder.com/120"}
-            alt="profile"
-            className="w-32 h-32 rounded-full object-cover border"
-          />
-        </div>
+        <p><strong>Name:</strong> {user.name}</p>
+        <p><strong>Email:</strong> {user.email}</p>
 
-        {/* 🟢 Info */}
-        <p className="mb-2"><strong>Name:</strong> {user?.name}</p>
-        <p className="mb-4"><strong>Email:</strong> {user?.email}</p>
-
-        {/* 🟢 Upload */}
         <input
           type="file"
           onChange={handleUpload}
-          className="w-full border p-2 rounded-lg"
+          style={{ marginTop: "10px" }}
         />
-
       </div>
     </div>
   );
