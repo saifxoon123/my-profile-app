@@ -35,14 +35,21 @@ export default function Profile() {
 
   // 🔥 update name
   const updateProfile = async () => {
-    await fetch("/api/profile/update", {
-      method: "POST",
-      body: JSON.stringify({ name }),
-    });
+  const res = await fetch("/api/profile/update", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ name }),
+  });
 
-    alert("Updated!");
-    window.location.reload();
-  };
+  const data = await res.json();
+
+  console.log(data);
+
+  alert("Updated!");
+  window.location.reload();
+};
 
   // 🔥 logout
   const logout = async () => {
