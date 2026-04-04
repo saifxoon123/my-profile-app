@@ -9,22 +9,30 @@ export async function POST(req: Request) {
     await connectDB();
 
     const token = cookies().get("token")?.value;
+
     if (!token) {
-      return NextResponse.json({ message: "Not logged in" });
+      return NextResponse.json({ message: "No token" });
     }
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    const body = await req.json();
+    const { name } = await req.json();
 
-    const user = await User.findByIdAndUpdate(
-      decoded.id,
-      { name: body.name },
-      { new: true }
-    );
+    console.log("USER ID:", decoded.id);
+    console.log("NEW NAME:", name);
 
-    return NextResponse.json(user);
-  } catch (error) {
-    return NextResponse.json({ message: "Error updating profile" });
+    const user = await User.findById(decoded.id);
+
+    if (!user) {
+      return NextResponse.json({ message: "User not found" });
+    }
+
+    user.name = name;
+    await user.save();
+
+    return NextResponse.json({ message: "Updated", user });
+  } catch (err) {
+    console.log(err);
+    return NextResponse.json({ message: "Error" });
   }
 }

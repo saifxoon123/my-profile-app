@@ -1,7 +1,6 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 import User from "@/models/User";
-import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 
 export async function POST(req: Request) {
@@ -13,21 +12,16 @@ export async function POST(req: Request) {
     const user = await User.findOne({ email });
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      return NextResponse.json({ message: "User not found" });
     }
 
-    const isMatch = await bcrypt.compare(password, user.password);
-
-    if (!isMatch) {
-      return NextResponse.json({ error: "Wrong password" }, { status: 400 });
+    if (user.password !== password) {
+      return NextResponse.json({ message: "Wrong password" });
     }
 
-    // 🔥 FINAL TOKEN (IMPORTANT)
+    // 🔥 এখানে MAIN FIX
     const token = jwt.sign(
-      {
-        userId: user._id.toString(),
-        email: user.email,
-      },
+      { id: user._id }, // 👈 MUST use _id
       process.env.JWT_SECRET!,
       { expiresIn: "7d" }
     );
@@ -36,12 +30,11 @@ export async function POST(req: Request) {
 
     response.cookies.set("token", token, {
       httpOnly: true,
-      path: "/",
     });
 
     return response;
-
   } catch (error) {
-    return NextResponse.json({ error: "Server error" }, { status: 500 });
+    console.log(error);
+    return NextResponse.json({ message: "Error" });
   }
 }
