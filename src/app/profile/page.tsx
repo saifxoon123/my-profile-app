@@ -4,15 +4,19 @@ import { useEffect, useState } from "react";
 
 export default function Profile() {
   const [data, setData] = useState<any>(null);
+  const [name, setName] = useState("");
 
-  // 🔥 user data load
+  // 🔥 load user data
   useEffect(() => {
     fetch("/api/profile")
       .then(res => res.json())
-      .then(res => setData(res));
+      .then(res => {
+        setData(res);
+        setName(res.name);
+      });
   }, []);
 
-  // 🔥 upload function
+  // 🔥 upload photo
   const upload = async (e: any) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -29,7 +33,18 @@ export default function Profile() {
     window.location.reload();
   };
 
-  // 🔥 logout function
+  // 🔥 update name
+  const updateProfile = async () => {
+    await fetch("/api/profile/update", {
+      method: "POST",
+      body: JSON.stringify({ name }),
+    });
+
+    alert("Updated!");
+    window.location.reload();
+  };
+
+  // 🔥 logout
   const logout = async () => {
     await fetch("/api/logout");
     window.location.href = "/login";
@@ -70,16 +85,42 @@ export default function Profile() {
           }}
         />
 
-        <p><b>Name:</b> {data?.name}</p>
         <p><b>Email:</b> {data?.email}</p>
 
+        {/* 🔵 Edit Name */}
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          style={{
+            marginTop: "10px",
+            padding: "8px",
+            width: "100%",
+          }}
+        />
+
+        <button
+          onClick={updateProfile}
+          style={{
+            marginTop: "10px",
+            padding: "10px",
+            width: "100%",
+            background: "blue",
+            color: "white",
+            border: "none",
+            borderRadius: "5px",
+          }}
+        >
+          Update Name
+        </button>
+
+        {/* 📤 Upload */}
         <input
           type="file"
           onChange={upload}
           style={{ marginTop: "15px" }}
         />
 
-        {/* 🔴 Logout Button */}
+        {/* 🔴 Logout */}
         <button
           onClick={logout}
           style={{

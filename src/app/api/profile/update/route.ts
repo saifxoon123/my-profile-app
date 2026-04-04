@@ -6,27 +6,25 @@ import { cookies } from "next/headers";
 
 export async function POST(req: Request) {
   try {
-
     await connectDB();
 
-    const { name } = await req.json();
-
-    const cookieStore = cookies();
-    const token = cookieStore.get("token")?.value;
-
+    const token = cookies().get("token")?.value;
     if (!token) {
-      return NextResponse.json({ error: "Not logged in" });
+      return NextResponse.json({ message: "Not logged in" });
     }
 
     const decoded: any = jwt.verify(token, process.env.JWT_SECRET!);
 
-    await User.findByIdAndUpdate(decoded.userId, {
-      name: name,
-    });
+    const body = await req.json();
 
-    return NextResponse.json({ message: "Name updated" });
+    const user = await User.findByIdAndUpdate(
+      decoded.id,
+      { name: body.name },
+      { new: true }
+    );
 
+    return NextResponse.json(user);
   } catch (error) {
-    return NextResponse.json({ error: "Update failed" });
+    return NextResponse.json({ message: "Error updating profile" });
   }
 }
