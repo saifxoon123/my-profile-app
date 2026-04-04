@@ -6,16 +6,17 @@ export function middleware(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // 🟢 public routes
+  // 🟢 public routes (login/register/api)
   if (
     pathname.startsWith("/login") ||
     pathname.startsWith("/register") ||
-    pathname.startsWith("/")
+    pathname.startsWith("/api/login") ||
+    pathname.startsWith("/api/register")
   ) {
     return NextResponse.next();
   }
 
-  // 🔒 protected route (profile)
+  // 🔒 protect profile route
   if (pathname.startsWith("/profile")) {
     if (!token) {
       return NextResponse.redirect(new URL("/login", request.url));
@@ -24,3 +25,8 @@ export function middleware(request: NextRequest) {
 
   return NextResponse.next();
 }
+
+// 🔥 middleware only works on /profile
+export const config = {
+  matcher: ["/profile"],
+};
